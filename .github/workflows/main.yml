@@ -1,0 +1,43 @@
+name: Main Workflow
+
+on: [push]
+
+jobs:
+  linting:
+    name:  Run static code analysis
+    uses : ./.github/workflows/ci-lint.yml
+
+  tests:
+    name : Run test
+    needs: linting
+    uses : ./.github/workflows/ci-test.yml
+
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    needs: tests
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Cache Docker layers
+        uses: actions/cache@v2
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
+
+      - name: Build and push Docker image
+        run: |
+          docker build -t pinkuchanda/budget-app-image:v1.0.0 .
+          docker push pinkuchanda/budget-app-image:v1.0.0  
