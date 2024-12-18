@@ -39,5 +39,5 @@ jobs:
 
       - name: Build and push Docker image
         run: |
-          docker build -t pinkuchanda/budget-app-image:v1.0.0 .
-          docker push pinkuchanda/budget-app-image:v1.0.0  
+          docker build -t pinkuchanda/laravel-app-image:v1.0.0 .
+          docker push pinkuchanda/laravel-app-image:v1.0.0  
