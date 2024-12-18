@@ -63,6 +63,18 @@ services:
     networks:
       - laravel-app-network
 
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin
+    restart: unless-stopped
+    environment:
+      PMA_HOST: laravel-app-db-container
+      MYSQL_ROOT_PASSWORD: password
+    ports:
+      - 8081:80
+    networks:
+      - laravel-app-network
+
 
 volumes:
   db-data:
