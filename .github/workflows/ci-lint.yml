@@ -25,12 +25,10 @@ jobs:
  
       - name: Install Pint
         run: composer global require laravel/pint
-        working-directory: ./src
  
       - name: Run Pint
         run: pint
-        working-directory: ./src
- 
+         
       - name: Commit linted files
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
