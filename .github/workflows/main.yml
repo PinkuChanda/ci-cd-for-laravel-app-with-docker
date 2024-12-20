@@ -4,13 +4,13 @@ on: [push]
 
 jobs:
   linting:
-    name:  Run static code analysis
-    uses : ./.github/workflows/ci-lint.yml
+    name: Run static code analysis
+    uses: ./.github/workflows/ci-lint.yml
 
   tests:
-    name : Run test
+    name: Run tests
     needs: linting
-    uses : ./.github/workflows/ci-test.yml
+    uses: ./.github/workflows/ci-test.yml
 
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -40,4 +40,25 @@ jobs:
       - name: Build and push Docker image
         run: |
           docker build -t pinkuchanda/laravel-app-image:v1.0.0 .
-          docker push pinkuchanda/laravel-app-image:v1.0.0  
+          docker push pinkuchanda/laravel-app-image:v1.0.0
+
+      - name: Copy configuration files to EC2
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.EC2_IP }}
+          username: ec2-user
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          source: "docker-compose.yml"
+          target: "~/"
+
+      - name: Deploy on EC2
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_IP }}
+          username: ec2-user
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          script: |
+            docker-compose down
+            docker-compose pull pinkuchanda/laravel-app-image:v1.0.0
+            docker-compose up -d
+            docker image prune -f
