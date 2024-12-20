@@ -58,7 +58,7 @@ jobs:
           username: ec2-user
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           script: |
-            docker-compose down
+            docker-compose down --remove-orphans
             docker-compose pull pinkuchanda/laravel-app-image:v1.0.0
             docker-compose up -d
             docker image prune -f
